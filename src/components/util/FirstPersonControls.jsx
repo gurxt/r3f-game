@@ -44,6 +44,8 @@ export default function FirstPersonControls() {
     }
 
     actions.Base.play()
+    actions.HoldBow.play()
+    actions.ArrowAction.play()
 
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
@@ -56,7 +58,7 @@ export default function FirstPersonControls() {
 
   useFrame((_, delta) => {
 
-    console.log(controlsRef.current)
+    console.log(actions)
     const velocity = movementRef.current.sprint && !movementRef.current.crouch ? 0.1 : 0.05
     const crouchHeight = 1
     const bobSpeed = movementRef.current.sprint ? 3 : 2
@@ -98,7 +100,7 @@ export default function FirstPersonControls() {
     // apply positional offset
     characterRef.current.position.set(
       cameraPosition.x,
-      cameraPosition.y - 1.60,
+      cameraPosition.y - 1.64,
       cameraPosition.z
     )
   })
@@ -106,10 +108,17 @@ export default function FirstPersonControls() {
   return (
     <>
       <group>
-        <PointerLockControls maxPolarAngle={Math.PI / 1.2} minPolarAngle={Math.PI / 2.5} pointerSpeed={0.5} ref={controlsRef} />
+        <PointerLockControls maxPolarAngle={Math.PI / 1.2} minPolarAngle={Math.PI / 2.5} pointerSpeed={0.3} ref={controlsRef} />
         <group ref={characterRef} dispose={null}>
         {/*********************************** */}
-      <group name="Elf_Swordmaster" position={[0, -0.001, 0]}>
+        <group name="breastL_spring" position={[0.074, 1.369, 0.076]} />
+        <group name="breastR_spring" position={[-0.097, 1.351, 0.078]} />
+        <group name="chest_spring" position={[0, 1.149, -0.181]} />
+        <group name="Armature" position={[0.419, 1.111, 0.217]} rotation={[1.092, -0.962, 0.213]} scale={0.106}>
+          <primitive object={nodes.main} />
+          <skinnedMesh name="Bow" geometry={nodes.Bow.geometry} material={materials['Dark Brown Marble']} skeleton={nodes.Bow.skeleton} />
+        </group>
+        <group name="Elf_Swordmaster" position={[0, -0.001, 0]}>
           <primitive object={nodes.root} />
           <primitive object={nodes['MCH-torsoparent']} />
           <primitive object={nodes['MCH-hand_ikparentL']} />
@@ -141,7 +150,7 @@ export default function FirstPersonControls() {
           <skinnedMesh name="ElfSwordmaster_Armor_ChestExposed" geometry={nodes.ElfSwordmaster_Armor_ChestExposed.geometry} material={materials.ElfSwordmaster_Armor_Chest} skeleton={nodes.ElfSwordmaster_Armor_ChestExposed.skeleton} />
           <skinnedMesh name="ElfSwordmaster_Armor_Hips_Exposed" geometry={nodes.ElfSwordmaster_Armor_Hips_Exposed.geometry} material={materials.ElfSwordmaster_Armor_Chest} skeleton={nodes.ElfSwordmaster_Armor_Hips_Exposed.skeleton} />
         </group>
-        <mesh name="ElfSwordmaster_Weapon" geometry={nodes.ElfSwordmaster_Weapon.geometry} material={materials.ElfSwordmaster_Weapon} position={[-0.107, 1.2, 0.208]} rotation={[2.408, -0.384, 1.888]} />
+        <mesh name="Arrow" geometry={nodes.Arrow.geometry} material={materials['Wooden surface']} position={[-0.316, 1.021, 0.138]} rotation={[0.766, -0.364, -0.268]} scale={[0.002, 0.332, 0.002]} />
         {/*********************************** */}
         </group>
       </group>

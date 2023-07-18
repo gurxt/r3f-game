@@ -16,7 +16,7 @@ export default function Scene() {
       intensity={2}
     >
       <Suspense fallback={<mesh><boxGeometry /><meshBasicMaterial wireframe/></mesh>}>
-        {/*<Tifa scale={1.5} position={[0, -1, 0]} />*/}
+        <Tifa scale={1.5} position={[0, -1, 0]} />
       </Suspense>
     </Stage>
     <gridHelper args={[100, 100]} />
