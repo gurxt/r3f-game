@@ -6,16 +6,18 @@ import FirstPersonControls from "./util/FirstPersonControls"
 import { Town } from "./models/Town"
 import Flag from "./models/Flag"
 import Patterns from "./models/Patterns"
+import River from "./models/River"
 
 export default function Scene() {
   return (
     <>
     <Perf position="bottom-left" />
     {/* models */}
-    <Patterns />
-    <Flag />
+    {/* <Patterns />
+    <Flag /> */}
+    <River />
     {/**********/}
-    <gridHelper />
+    <gridHelper args={[250, 250]} />
     <FirstPersonControls />
     </>
   )
