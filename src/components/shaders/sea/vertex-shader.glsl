@@ -90,16 +90,22 @@ float cnoise(vec3 P)
 void main() {
   vec4 modelPosition = modelMatrix * vec4(position, 1.0);
 
-  float elevation = 
-    sin(modelPosition.x * uBigWaveFrequency.x + uTime * 0.50) * 
-    sin(modelPosition.z * uBigWaveFrequency.y + uTime * 0.25) * 
+  float elevation =
+    sin(modelPosition.x * uBigWaveFrequency.x + uTime * 1.25) * 
+    sin(modelPosition.z * uBigWaveFrequency.y + uTime * 0.75) * 
     uBigWaveElevation;
 
   for (float i=1.0; i <= 3.0; i++) {
-    elevation -= abs(cnoise(vec3(modelPosition.xz * 1.5 * i, uTime * 0.1)) * 0.075 / i);
+    elevation -= abs(cnoise(vec3(modelPosition.xz * 1.0 * i, uTime * 0.2 * i)) * 0.15);
   }
-  
+
+  float distanceFromCenter = length(modelPosition.xz);
+  float riverWidth = 5.0;
+  float riverWidthScale = smoothstep(0.0, distanceFromCenter, distanceFromCenter);
+  float middleTaper = 1.0 - (distanceFromCenter / riverWidth) * (distanceFromCenter / riverWidth);
+
   modelPosition.y += elevation;
+  modelPosition.z += sin(modelPosition.x * 0.1); // randomize this
 
   vec4 viewPosition = viewMatrix * modelPosition;
   vec4 projectedPosition = projectionMatrix * viewPosition;

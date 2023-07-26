@@ -6,7 +6,7 @@ import { useControls } from "leva"
 import * as THREE from "three"
 import { useFrame } from "@react-three/fiber"
 
-export default function River() {
+export default function River({ position }) {
   const ref = useRef()
 
   const seaColors = {}
@@ -15,8 +15,8 @@ export default function River() {
 
   const { elevation, frequencyX, frequencyY} = useControls('elevation', {
    elevation: { value: 0.05, min: 0.0, max: 1.0, step: 0.001 },
-   frequencyX: { value: 4, min: 0.0, max: 5.0, step: 0.001 },
-   frequencyY: { value: 0.25, min: 0.0, max: 5.0, step: 0.001 }
+   frequencyX: { value: 1.00, min: 0.0, max: 5.0, step: 0.001 },
+   frequencyY: { value: 0.50, min: 0.0, max: 5.0, step: 0.001 }
   })
 
   const material = new ShaderMaterial({
@@ -41,8 +41,10 @@ export default function River() {
 
 
   return (
-    <mesh ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
-      <boxGeometry args={[250, 5, 0.5, 64, 64]} />
-    </mesh>
+    <>
+      <mesh ref={ref} material={material} position={position} rotation={[-Math.PI / 2, 0, 0]}>
+        <boxGeometry args={[100, 5, 1, 128, 128]} />
+      </mesh>
+    </>
   )
 }

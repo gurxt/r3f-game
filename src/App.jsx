@@ -7,9 +7,7 @@ const App = () => {
     <Canvas shadows={false}>
       <EffectComposer>
         <Vignette />
-        <Bloom />
       </EffectComposer>
-      <color args={[0x333333]} attach="background" />
       <Scene />
     </Canvas>
   )
