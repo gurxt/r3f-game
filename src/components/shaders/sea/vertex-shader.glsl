@@ -109,6 +109,7 @@ void main() {
 
   vec4 viewPosition = viewMatrix * modelPosition;
   vec4 projectedPosition = projectionMatrix * viewPosition;
+  projectedPosition.y -= distance(uv.x, 0.5) * 30.0;
 
   gl_Position = projectedPosition;
 

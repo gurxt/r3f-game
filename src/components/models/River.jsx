@@ -43,7 +43,7 @@ export default function River({ position }) {
   return (
     <>
       <mesh ref={ref} material={material} position={position} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[100, 5, 1, 128, 128]} />
+        <boxGeometry args={[300, 5, 1, 128, 128]} />
       </mesh>
     </>
   )

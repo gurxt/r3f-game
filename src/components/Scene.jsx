@@ -9,21 +9,24 @@ import Patterns from "./models/Patterns"
 import River from "./models/River"
 import Ground from "./models/Ground"
 import Math from "./models/Math"
+import Shapes from "./models/Shapes"
+import Scryer from "./models/Scryer"
 
 export default function Scene() {
   return (
     <>
     <Perf position="bottom-left" />
     {/* models */}
-    {/* <Patterns />
-    <Flag /> */}
+    {/* <Patterns /> */}
+    {/* <Flag /> */}
     <Sky />
-    <Math />
-    {/* <Ground />
-    <River /> */}
-    <OrbitControls />
+    {/* <Shapes /> */}
+    {/* <Math /> */}
+    <Ground />
+    {/* <River /> */}
+    {/* <OrbitControls /> */}
     {/**********/}
-    {/* <FirstPersonControls /> */}
+    <FirstPersonControls />
     </>
   )
 }

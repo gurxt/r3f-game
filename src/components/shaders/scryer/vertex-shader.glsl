@@ -82,23 +82,30 @@ float cnoise(vec3 P)
 
 uniform vec2 resolution;
 uniform float uTime;
-
 varying vec2 vUv;
-varying float vElevation;
+
 
 void main() {
   vec2 pixelCoords = (vUv - 0.5) * resolution;
+
   vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-  float elevation =
-    sin(modelPosition.x * 0.50) * 
-    sin(modelPosition.z * 0.25) *
-    0.10;
 
-  for (float i=1.0; i <= 1.0; i++) {
-    elevation -= abs(cnoise(vec3(modelPosition.xz * 20.0 * i, 0.1 * i)) * 0.10);
-  }
+  // float y = modelPosition.y;
+  // float x = modelPosition.x;
+  // float amplitude = 1.;
+  // float frequency = 1.;
+  // y = sin(x * frequency);
+  // float t = 0.01*(-uTime*130.0);
+  // y += sin(x*frequency*2.1 + t)*4.5;
+  // y += sin(x*frequency*1.72 + t*1.121)*4.0;
+  // y += sin(x*frequency*2.221 + t*0.437)*5.0;
+  // y += sin(x*frequency*3.1122+ t*4.269)*2.5;
+  // y *= amplitude*0.06;
+  // modelPosition.y += y;
 
-  modelPosition.y += elevation;
+  //modelPosition.y += sin(dot(modelPosition.x, pixelCoords.x)) * 0.2;
+  //modelPosition.y -= cnoise(modelPosition.xyz) * 10.0;
+  //modelPosition.y = clamp(modelPosition.y, 0.5, 2.0);
 
   vec4 viewPosition = viewMatrix * modelPosition;
   vec4 projectedPosition = projectionMatrix * viewPosition;
@@ -106,5 +113,4 @@ void main() {
   gl_Position = projectedPosition;
 
   vUv = uv;
-  vElevation = elevation;
 }
