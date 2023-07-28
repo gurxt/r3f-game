@@ -51,8 +51,7 @@ export default function FirstPersonControls() {
     const t = controlsRef.current.camera.position.length() * bobSpeed
     const headBobOffset = Math.sin(t) * bobAmount
 
-    if (forward != 0 ||  backward != 0)
-      controlsRef.current.camera.position.y = newY + headBobOffset
+    controlsRef.current.camera.position.y = newY + headBobOffset
 
     // rotate the character with the camera
     const cameraWorldMatrix = controlsRef.current.camera.matrixWorld;
@@ -73,8 +72,8 @@ export default function FirstPersonControls() {
   return (
     <>
       <group>
-        <PointerLockControls maxPolarAngle={Math.PI / 1.15} minPolarAngle={Math.PI / 2.5} pointerSpeed={0.3} ref={controlsRef} />
-        {/* <PlayerCharacter position={[0, -1.67, 0]}  ref={characterRef} /> */}
+        <PointerLockControls maxPolarAngle={Math.PI / 1.15} pointerSpeed={0.3} ref={controlsRef} />
+        {/* <PlayerCharacter position={[0, -1.67, 0]}  ref={characterRef} />  */}
       </group>
     </>
   )

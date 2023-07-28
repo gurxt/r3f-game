@@ -1,4 +1,3 @@
-import Tifa from "./models/Tifa"
 import { Html, OrbitControls, Sky, Stage } from "@react-three/drei"
 import { Perf } from "r3f-perf"
 import { Suspense } from "react"
@@ -19,10 +18,12 @@ export default function Scene() {
     {/* models */}
     {/* <Patterns /> */}
     {/* <Flag /> */}
-    <Sky />
     {/* <Shapes /> */}
     {/* <Math /> */}
-    <Ground />
+    <Sky />
+    <Ground position={[0, 0, 0]} />
+    <Town />
+    <ambientLight />
     {/* <River /> */}
     {/* <OrbitControls /> */}
     {/**********/}

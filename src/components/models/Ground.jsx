@@ -8,7 +8,7 @@ import Cobblestone from "../../assets/cobblestone.png"
 import Grass from "../../assets/grass.png"
 import { useTexture } from "@react-three/drei"
 
-export default function Ground() {
+export default function Ground({ position }) {
   const ref = useRef()
   const COLOR1 = "#A89A8E"
   const COLOR2 = "#9B7643"
@@ -34,7 +34,7 @@ export default function Ground() {
   })
 
   return (
-    <mesh ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
+    <mesh receiveShadow castShadow position={position} ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
       <planeGeometry args={[250, 250, 256, 256]} />
     </mesh>
   )

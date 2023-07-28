@@ -17,7 +17,7 @@ export default function Flag() {
     vertexShader: vsh,
     fragmentShader: fsh,
     uniforms: {
-      uFrequency: { value: new THREE.Vector2(1, 1.5) },
+      uFrequency: { value: new THREE.Vector2(1.0, 1.5) },
       uTime: { value: 0 },
       uColor: { value: new THREE.Color('green') },
       uTexture: { value: texture }
