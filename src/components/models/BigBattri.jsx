@@ -10,7 +10,7 @@ const Battri = forwardRef((props, ref) => {
   const { nodes, materials } = useGLTF('/BigBattri-transformed.glb')
   return (
     <group {...props} ref={ref} dispose={null}>
-     <group position={[0, -0.025, -0.335]}>
+     <group rotation={[0, Math.PI, 0]} position={[0, -0.025, -0.335]}>
         <mesh geometry={nodes.Plane.geometry} material={materials.PaletteMaterial001} />
         <mesh geometry={nodes.Plane_1.geometry} material={materials.PaletteMaterial002} />
       </group>

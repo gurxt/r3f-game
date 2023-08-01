@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
+import Battri from "../models/BigBattri"
 
 const ThirdPersonControls = () => {
   const characterRef = useRef()
@@ -13,6 +14,11 @@ const ThirdPersonControls = () => {
   })
 
   const [yaw, setYaw] = useState(0)
+  const [pitch, setPitch] = useState(0)
+  const [targetCamDistance, setTargetCamDistance] = useState(0.5)
+  const [camDistance, setCamDistance] = useState(0.5)
+  const [targetYOffset, setTargetYOffset] = useState(2)
+  const [currentYOffset, setCurrentYOffset] = useState(2)
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -30,7 +36,13 @@ const ThirdPersonControls = () => {
     }
 
     const handleMouseMove = (event) => {
-      setYaw((prevState) => prevState + event.movementX * 0.002)
+      setYaw((prevState) => prevState - event.movementX * 0.002)
+      setTargetYOffset((prevState) => Math.max(0.5, Math.min(3, prevState + event.movementY * 0.002)))
+      setPitch((prevState) => Math.max(-Math.PI / 2, Math.min(Math.PI / 2, prevState + event.movementY * 0.002)))
+    }
+
+    const handleWheelScroll = (event) => {
+      setTargetCamDistance(prevState => Math.max(0.1, Math.min(5, prevState - event.deltaY * -0.001)));
     }
 
     const handlePointerLockChange = () => {
@@ -42,12 +54,14 @@ const ThirdPersonControls = () => {
     }
 
     gl.domElement.addEventListener('click', () => gl.domElement.requestPointerLock())
+    gl.domElement.addEventListener('wheel', handleWheelScroll, {passive: true})
     document.addEventListener('pointerlockchange', handlePointerLockChange, false)
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
 
     return () => {
       gl.domElement.removeEventListener('click', () => gl.domElement.requestPointerLock())
+      gl.domElement.removeEventListener('wheel', handleWheelScroll)
       document.removeEventListener('pointerlockchange', handlePointerLockChange, false)
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
@@ -57,9 +71,8 @@ const ThirdPersonControls = () => {
   useFrame((state, delta) => {
     if (!characterRef.current) return;
 
-    const speed = 5
+    const speed = 3
     const direction = new Vector3()
-    const camDistance = 2
 
     direction.set(
       Number(moveStates.right) - Number(moveStates.left),
@@ -73,24 +86,33 @@ const ThirdPersonControls = () => {
       characterRef.current.translateX(direction.x * speed * delta)
 
     // Character rotation (only yaw)
-    characterRef.current.rotation.set(0, -yaw, 0)
+    characterRef.current.rotation.y = yaw
 
     // Camera follows the character
-    camera.rotation.set(0, -yaw, 0)
+    camera.rotation.x = pitch
+    camera.rotation.y = yaw
+
+    // Smoothly interpolate yOffset and camera distance
+    const yOffsetDamping = 3
+    const camDistanceDamping = 3
+
+    setCurrentYOffset(prevState => prevState + (targetYOffset - prevState) * yOffsetDamping * delta)
+    setCamDistance(prevState => prevState + (targetCamDistance - prevState) * camDistanceDamping * delta)
 
     // Set camera position to follow the character from behind
-    const offset = new Vector3(0, 0, camDistance).applyQuaternion(characterRef.current.quaternion)
+    const offset = new Vector3(0.2, currentYOffset, camDistance).applyQuaternion(characterRef.current.quaternion)
     camera.position.copy(characterRef.current.position).add(offset)
 
-    camera.lookAt(characterRef.current.position)
+    // Make camera look at a point in front of the character
+    const lookAtBaseY = 3 // Base y position of lookAt, adjust this value as needed
+    const lookAtY = lookAtBaseY - currentYOffset // The y position of lookAt will be higher when currentYOffset is lower
+    const lookAtPosition = new Vector3(0, lookAtY, -4 - camDistance).applyQuaternion(characterRef.current.quaternion)
+    camera.lookAt(lookAtPosition.add(characterRef.current.position))
   })
 
   return (
     <group>
-      <mesh ref={characterRef} position={[0, 1, -5]}>
-        <boxGeometry args={[1, 2, 1]} />
-        <meshStandardMaterial color="blue" />
-      </mesh>
+      <Battri ref={characterRef} />
     </group>
   )
 }
