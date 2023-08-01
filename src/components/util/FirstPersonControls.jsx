@@ -1,25 +1,23 @@
 import React, { useRef, useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { PointerLockControls } from '@react-three/drei'
-import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
-import  PlayerCharacter from '../models/PlayerCharacter'
+import { Vector3, MathUtils } from 'three'
+import PlayerCharacter from '../models/PlayerCharacter'
 import useKeyboard from '../hooks/useKeyboard'
 
-// global vars
-const vec = new Vector3()
-const crouchHeight = 1
-const baseHeight = 1.67
+const PLAYER_SPEED = 0.1;
+const CROUCH_HEIGHT = 1;
+const BASE_HEIGHT = 1.67;
 
 export default function FirstPersonControls() {
   const characterRef = useRef()
   const controlsRef = useRef()
-  const [sprint, setSprint] = useState(false)
-  const keyMap = useKeyboard(sprint, setSprint)
+  const [height, setHeight] = useState(BASE_HEIGHT);
+  const keyMap = useKeyboard();
 
   useFrame(() => {
-    // fetch keyboard input 
     const { forward, backward, left, right, crouch, sprint } = {
-      forward:  keyMap['KeyW'],
+      forward: keyMap['KeyW'],
       backward: keyMap['KeyS'],
       left: keyMap['KeyA'],
       right: keyMap['KeyD'],
@@ -27,53 +25,35 @@ export default function FirstPersonControls() {
       sprint: keyMap['KeyR']
     }
   
-    // adjust speed + head bob
-    const velocity = sprint && !crouch ? 0.1 : 0.05
-    const bobSpeed = sprint ? 3 : 2
-    const bobAmount =  sprint ? 0.02 : 0.01
+    const velocity = sprint && !crouch ? PLAYER_SPEED : PLAYER_SPEED / 2;
 
-    // determine direction
-    const mX = (right ? 1 : 0) - (left ? 1 : 0)
-    const mZ = (forward ? 1 : 0) - (backward ? 1 : 0)
+    const direction = new Vector3(
+      right - left,
+      0,
+      forward - backward
+    ).normalize();
 
-    // apply movement
-    controlsRef.current.moveRight(mX * velocity)
-    controlsRef.current.moveForward(mZ * velocity)
+    direction.multiplyScalar(velocity);
+    controlsRef.current.moveRight(direction.x);
+    controlsRef.current.moveForward(direction.z);
 
-    const targetY = crouch ? crouchHeight : 2
-    const newY = MathUtils.lerp(
-      controlsRef.current.camera.position.y,
-      targetY,
-      0.1
-    )
-    controlsRef.current.camera.position.y = newY
+    setHeight(crouch ? CROUCH_HEIGHT : BASE_HEIGHT);
 
-    const t = controlsRef.current.camera.position.length() * bobSpeed
-    const headBobOffset = Math.sin(t) * bobAmount
-
-    controlsRef.current.camera.position.y = newY + headBobOffset
-
-    // rotate the character with the camera
-    const cameraWorldMatrix = controlsRef.current.camera.matrixWorld;
-    vec.set(0,0,0)
-    cameraWorldMatrix.decompose(vec, new Quaternion(), vec)
-    const targetQuaternion = new Quaternion().setFromRotationMatrix(cameraWorldMatrix);
-    const euler = new Euler().setFromQuaternion(targetQuaternion, 'YXZ');
-
-    // apply rotation and positional movement to the character
-    // characterRef.current.rotation.y = Math.PI + euler.y
-    // characterRef.current.position.set(
-    //   controlsRef.current.camera.position.x,
-    //   controlsRef.current.camera.position.y - baseHeight,
-    //   controlsRef.current.camera.position.z,
-    // )
-})
+    const newY = MathUtils.lerp(controlsRef.current.camera.position.y, height, 0.1);
+    controlsRef.current.camera.position.y = newY;
+    
+    characterRef.current.position.copy(controlsRef.current.camera.position);
+    characterRef.current.rotation.y = Math.PI + controlsRef.current.getDirection(new Vector3()).y;
+  });
 
   return (
     <>
       <group>
         <PointerLockControls maxPolarAngle={Math.PI / 1.15} pointerSpeed={0.3} ref={controlsRef} />
-        {/* <PlayerCharacter position={[0, -1.67, 0]}  ref={characterRef} />  */}
+        <mesh ref={characterRef}>
+          <boxGeometry args={[1, 2, 1]} />
+          <meshStandardMaterial color="blue" />
+        </mesh>
       </group>
     </>
   )

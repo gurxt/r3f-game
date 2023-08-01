@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function useKeyboard(sprint, setSprint) {
+export default function useKeyboard() {
   const keyMap = useRef({})
 
   useEffect(() => {
