@@ -12,7 +12,6 @@ export default function Scene() {
     <Ground position={[0, 0, 0]} />
     <Model />
     <ThirdPersonControls />
-    <ambientLight />
     <directionalLight />
     {/**********/}
     </>
