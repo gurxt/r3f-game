@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Vector3 } from 'three'
 import Battri from "../models/BigBattri"
+import { CharacterContext } from '../hooks/useContext'
 
 const ThirdPersonControls = () => {
   const characterRef = useRef()
@@ -13,6 +14,7 @@ const ThirdPersonControls = () => {
     right: false,
   })
 
+  const { animation, setAnimation, setPreviousAnimation } = useContext(CharacterContext);
   const [sprinting, setSprinting] = useState(false)
   const [crouching, setCrouching] = useState(false)
   const [yaw, setYaw] = useState(0)
@@ -22,65 +24,71 @@ const ThirdPersonControls = () => {
   const [targetYOffset, setTargetYOffset] = useState(2)
   const [currentYOffset, setCurrentYOffset] = useState(2)
 
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      const key = event.key.toLowerCase()
-      if (key === 'w') setMoveStates((states) => ({ ...states, forward: true }))
-      else if (key === 's') setMoveStates((states) => ({ ...states, backward: true }))
-      else if (key === 'a') setMoveStates((states) => ({ ...states, left: true }))
-      else if (key === 'd') setMoveStates((states) => ({ ...states, right: true }))
-      else if (key === 'capslock') setSprinting((prevSprinting) => !prevSprinting)
-      else if (key === 'c') setCrouching((prevCrouching) => { 
-        if (!prevCrouching) setTargetYOffset(1)  // Change yOffset when crouching
-        else setTargetYOffset(2)  // Change yOffset when not crouching
-        return !prevCrouching
-      })
-    }
+  const handleKeyDown = (event) => {
+    const key = event.key.toLowerCase()
+    if (key === 'w') setMoveStates((states) => ({ ...states, forward: true }))
+    else if (key === 's') setMoveStates((states) => ({ ...states, backward: true }))
+    else if (key === 'a') setMoveStates((states) => ({ ...states, left: true }))
+    else if (key === 'd') setMoveStates((states) => ({ ...states, right: true }))
+    else if (key === 'capslock') setSprinting((prevSprinting) => !prevSprinting)
+    else if (key === 'c') setCrouching((prevCrouching) => { 
+      if (!prevCrouching) setTargetYOffset(1)  // Change yOffset when crouching
+      else setTargetYOffset(2)  // Change yOffset when not crouching
+      return !prevCrouching
+    })
+  }
 
-    const handleKeyUp = (event) => {
-      const key = event.key.toLowerCase()
-      if (key === 'w') setMoveStates((states) => ({ ...states, forward: false }))
-      else if (key === 's') setMoveStates((states) => ({ ...states, backward: false }))
-      else if (key === 'a') setMoveStates((states) => ({ ...states, left: false }))
-      else if (key === 'd') setMoveStates((states) => ({ ...states, right: false }))
-    }
+  const handleKeyUp = (event) => {
+    const key = event.key.toLowerCase()
+    if (key === 'w') setMoveStates((states) => ({ ...states, forward: false }))
+    else if (key === 's') setMoveStates((states) => ({ ...states, backward: false }))
+    else if (key === 'a') setMoveStates((states) => ({ ...states, left: false }))
+    else if (key === 'd') setMoveStates((states) => ({ ...states, right: false }))
+  }
 
-    const handleMouseMove = (event) => {
-      setYaw((prevState) => prevState - event.movementX * 0.002)
-      
-      const minYOffset = 0.5
-      const maxYOffset = crouching ? 2 : 5  // Half the max offset when crouching
-      
-      setTargetYOffset(prevState => Math.max(minYOffset, Math.min(maxYOffset, prevState + event.movementY * 0.002)))
-      setPitch((prevState) => Math.max(-Math.PI / 2, Math.min(Math.PI / 2, prevState + event.movementY * 0.002)))
-    }
+  const handleMouseMove = (event) => {
+    setYaw((prevState) => prevState - event.movementX * 0.002)
     
+    const minYOffset = 0.5
+    const maxYOffset = crouching ? 2 : 5  // Half the max offset when crouching
+    
+    setTargetYOffset(prevState => Math.max(minYOffset, Math.min(maxYOffset, prevState + event.movementY * 0.002)))
+    setPitch((prevState) => Math.max(-Math.PI / 2, Math.min(Math.PI / 2, prevState + event.movementY * 0.002)))
+  }
+  
+  const handleWheelScroll = (event) => {
+    setTargetCamDistance(prevState => Math.max(1, Math.min(5, prevState - event.deltaY * -0.001)));
+  }
+
+  const handlePointerLockChange = () => {
+    if (document.pointerLockElement === gl.domElement) {
+      gl.domElement.addEventListener('mousemove', handleMouseMove, false)
+    } else {
+      gl.domElement.removeEventListener('mousemove', handleMouseMove, false)
+    }
+  }
+
+  useEffect(() => {
+    const handleClick = () => gl.domElement.requestPointerLock();
     const handleWheelScroll = (event) => {
-      setTargetCamDistance(prevState => Math.max(1, Math.min(5, prevState - event.deltaY * -0.001)));
-    }
-
-    const handlePointerLockChange = () => {
-      if (document.pointerLockElement === gl.domElement) {
-        gl.domElement.addEventListener('mousemove', handleMouseMove, false)
-      } else {
-        gl.domElement.removeEventListener('mousemove', handleMouseMove, false)
-      }
-    }
-
-    gl.domElement.addEventListener('click', () => gl.domElement.requestPointerLock())
-    gl.domElement.addEventListener('wheel', handleWheelScroll, {passive: true})
-    document.addEventListener('pointerlockchange', handlePointerLockChange, false)
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-
+      setTargetCamDistance((prevState) => Math.max(1, Math.min(5, prevState - event.deltaY * -0.001)));
+    };
+  
+    gl.domElement.addEventListener('click', handleClick);
+    gl.domElement.addEventListener('wheel', handleWheelScroll, {passive: true});
+    document.addEventListener('pointerlockchange', handlePointerLockChange, false);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+  
     return () => {
-      gl.domElement.removeEventListener('click', () => gl.domElement.requestPointerLock())
-      gl.domElement.removeEventListener('wheel', handleWheelScroll)
-      document.removeEventListener('pointerlockchange', handlePointerLockChange, false)
-      window.removeEventListener('keydown', handleKeyDown)
-      window.removeEventListener('keyup', handleKeyUp)
-    }
-  }, [gl.domElement])
+      gl.domElement.removeEventListener('click', handleClick);
+      gl.domElement.removeEventListener('wheel', handleWheelScroll);
+      document.removeEventListener('pointerlockchange', handlePointerLockChange, false);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, [gl.domElement]);
+  
 
   useFrame((state, delta) => {
     if (!characterRef.current) return;
@@ -101,6 +109,16 @@ const ThirdPersonControls = () => {
       0,
       Number(moveStates.forward) - Number(moveStates.backward)
     ).normalize()
+
+    if (direction.x === 0 && direction.y === 0 && direction.z === 0) {
+      setAnimation('Idle')
+      setPreviousAnimation(animation)
+    } else {
+      if (animation !== 'Walk') {
+        setAnimation('Walk')
+        setPreviousAnimation(animation)
+      }
+    }
 
     if (moveStates.forward || moveStates.backward)
       characterRef.current.translateZ(-direction.z * speed * delta)
@@ -128,9 +146,7 @@ const ThirdPersonControls = () => {
   })
 
   return (
-    <group>
-      <Battri ref={characterRef} />
-    </group>
+    <Battri ref={characterRef} />
   )
 }
 
