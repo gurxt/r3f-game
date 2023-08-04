@@ -7,6 +7,7 @@ import { useFrame } from "@react-three/fiber"
 import Cobblestone from "../../assets/cobblestone.png"
 import Grass from "../../assets/grass.png"
 import { useTexture } from "@react-three/drei"
+import { CuboidCollider, HeightfieldCollider, RigidBody } from "@react-three/rapier"
 
 export default function Ground({ position }) {
   const ref = useRef()
@@ -34,8 +35,10 @@ export default function Ground({ position }) {
   })
 
   return (
-    <mesh receiveShadow castShadow position={position} ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
-      <planeGeometry args={[250, 250, 256, 256]} />
-    </mesh>
+    <RigidBody type="Heightfield">
+      <mesh receiveShadow castShadow position={position} ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[250, 250, 256, 256]} />
+      </mesh>
+    </RigidBody>
   )
 }

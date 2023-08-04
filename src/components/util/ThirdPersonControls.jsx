@@ -31,11 +31,7 @@ const ThirdPersonControls = () => {
     else if (key === 'a') setMoveStates((states) => ({ ...states, left: true }))
     else if (key === 'd') setMoveStates((states) => ({ ...states, right: true }))
     else if (key === 'capslock') setSprinting((prevSprinting) => !prevSprinting)
-    else if (key === 'c') setCrouching((prevCrouching) => { 
-      if (!prevCrouching) setTargetYOffset(1)  // Change yOffset when crouching
-      else setTargetYOffset(2)  // Change yOffset when not crouching
-      return !prevCrouching
-    })
+    else if (key === 'c') setCrouching((prevCrouching) => !prevCrouching)
   }
 
   const handleKeyUp = (event) => {
@@ -48,18 +44,10 @@ const ThirdPersonControls = () => {
 
   const handleMouseMove = (event) => {
     setYaw((prevState) => prevState - event.movementX * 0.002)
-    
-    const minYOffset = 0.5
-    const maxYOffset = crouching ? 2 : 5  // Half the max offset when crouching
-    
-    setTargetYOffset(prevState => Math.max(minYOffset, Math.min(maxYOffset, prevState + event.movementY * 0.002)))
+    setTargetYOffset(prevState => Math.max(0.5, Math.min(5, prevState + event.movementY * 0.002)))
     setPitch((prevState) => Math.max(-Math.PI / 2, Math.min(Math.PI / 2, prevState + event.movementY * 0.002)))
   }
   
-  const handleWheelScroll = (event) => {
-    setTargetCamDistance(prevState => Math.max(1, Math.min(5, prevState - event.deltaY * -0.001)));
-  }
-
   const handlePointerLockChange = () => {
     if (document.pointerLockElement === gl.domElement) {
       gl.domElement.addEventListener('mousemove', handleMouseMove, false)
@@ -93,12 +81,12 @@ const ThirdPersonControls = () => {
   useFrame((state, delta) => {
     if (!characterRef.current) return;
 
-    let speed = 3
+    let speed = 2
     if (sprinting && !crouching) {
-      if (moveStates.forward && !(moveStates.left || moveStates.right)) speed = 6
-      else if (moveStates.forward && (moveStates.left || moveStates.right)) speed = 5
-      else if (moveStates.backward && (moveStates.left || moveStates.right)) speed = 4
-      else if (moveStates.backward) speed = 4.5
+      if (moveStates.forward && !(moveStates.left || moveStates.right)) speed = 4
+      else if (moveStates.forward && (moveStates.left || moveStates.right)) speed = 3.5
+      else if (moveStates.backward && (moveStates.left || moveStates.right)) speed = 3
+      else if (moveStates.backward) speed = 2.5
     }
 
     if (crouching) speed = 1

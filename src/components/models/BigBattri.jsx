@@ -4,42 +4,82 @@ Command: npx gltfjsx@6.2.10 .\public\BigBattri.glb
 */
 
 import React, { forwardRef, useContext, useEffect, useRef } from 'react'
-import { useAnimations, useGLTF } from '@react-three/drei'
+import { useAnimations, useGLTF, useKeyboardControls } from '@react-three/drei'
 import { CharacterContext } from '../hooks/useContext'
+import { useFrame } from '@react-three/fiber'
+import { RigidBody } from '@react-three/rapier'
+import { Euler, Vector3 } from 'three'
 
-const Battri = forwardRef((props, ref) => {
+const Battri = (props) => {
   const group = useRef()
   const { nodes, materials, animations } = useGLTF('/BigBattri-transformed.glb')
   const { actions } = useAnimations(animations, group)
   const { animation, previousAnimation } = useContext(CharacterContext)
+  const [ subscribeKeys, getKeys ] = useKeyboardControls()
+  const body = useRef()
 
-  useEffect(() => {
-    if (previousAnimation && actions[previousAnimation]) {
-      console.log(previousAnimation, animation)
-      // Crossfade from previous animation to current animation over 0.5 seconds
-      actions[animation].reset().play();  // Reset and play current animation
-      actions[previousAnimation].crossFadeTo(actions[animation], 0.5, false);  // Crossfade to new animation
-    } else {
-      // No previous animation, so just play the current one
-      actions[animation].play();
+  useFrame(({ camera }, delta) => {
+    if (!body.current) return null
+    const { forward, backward, left, right, space } = getKeys()
+
+    const translation = body.current.nextTranslation()
+
+    const speed = 2 * delta
+
+    if (forward) {
+      translation.z -= speed 
     }
-  }, [animation]);
+    if (backward) {
+      translation.z += speed 
+    }
+    if (right) {
+      translation.x += speed 
+    }
+    if (left) {
+      translation.x -= speed 
+    }
+
+    body.current.setNextKinematicTranslation(translation)
+    //body.current.applyTorqueImpulse(torque)
+
+       /* Camera */
+    const bodyPosition = body.current.translation()
+    const cameraPosition = new Vector3()
+    cameraPosition.copy(bodyPosition)
+    cameraPosition.z += 2.25
+    cameraPosition.y += 0.65
+
+    const cameraTarget = new Vector3()
+    cameraTarget.copy(bodyPosition)
+    cameraTarget.y += 0.25
+    camera.position.copy(cameraPosition)
+    camera.lookAt(cameraTarget)
+  })
 
   return (
-    <group {...props} ref={ref} dispose={null}>
-      <group ref={group} rotation={[0, Math.PI, 0]} name="Scene">
-        <group name="armature" position={[0, -0.034, -0.011]} scale={0.848}>
-          <primitive object={nodes.spine} />
-          <primitive object={nodes.pole_targetl} />
-          <primitive object={nodes.controllerl} />
-          <primitive object={nodes.pole_targetr} />
-          <primitive object={nodes.controllerr} />
+    <RigidBody
+      ref={body}
+      type="kinematicPosition"
+      restitution={0.2} 
+      friction={1} 
+      position={[0, 0, 0]}
+      canSleep={false}
+    >
+      <group {...props} dispose={null}>
+        <group ref={group} rotation={[0, Math.PI, 0]} name="Scene">
+          <group name="armature" position={[0, -0.034, -0.011]} scale={0.848}>
+            <primitive object={nodes.spine} />
+            <primitive object={nodes.pole_targetl} />
+            <primitive object={nodes.controllerl} />
+            <primitive object={nodes.pole_targetr} />
+            <primitive object={nodes.controllerr} />
+          </group>
+          <skinnedMesh castShadow name="Body" geometry={nodes.Body.geometry} material={materials.Material} skeleton={nodes.Body.skeleton} position={[0, -0.034, -0.011]} scale={0.848} />
         </group>
-        <skinnedMesh name="Body" geometry={nodes.Body.geometry} material={materials.Material} skeleton={nodes.Body.skeleton} position={[0, -0.034, -0.011]} scale={0.848} />
       </group>
-    </group>
+    </RigidBody>
   )
-})
+}
 
 export default Battri
 

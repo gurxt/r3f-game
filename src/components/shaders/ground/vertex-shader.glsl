@@ -84,21 +84,20 @@ uniform vec2 resolution;
 uniform float uTime;
 
 varying vec2 vUv;
-varying float vElevation;
 
 void main() {
-  vec2 pixelCoords = (vUv - 0.5) * resolution;
+  //vec2 pixelCoords = (vUv - 0.5) * resolution;
   vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-  float elevation =
-    sin(modelPosition.x * 0.50) * 
-    sin(modelPosition.z * 0.25) *
-    0.10;
+  // float elevation =
+  //   sin(modelPosition.x * 0.50) * 
+  //   sin(modelPosition.z * 0.25) *
+  //   0.50;
 
-  for (float i=1.0; i <= 1.0; i++) {
-    elevation -= abs(cnoise(vec3(modelPosition.xz * 20.0 * i, 0.1 * i)) * 0.10);
-  }
+  // for (float i=1.0; i <= 1.0; i++) {
+  //   elevation -= abs(cnoise(vec3(modelPosition.xz * 20.0 * i, 0.1 * i)) * 0.10);
+  // }
 
-  modelPosition.y += elevation;
+  // modelPosition.y += elevation;
 
   vec4 viewPosition = viewMatrix * modelPosition;
   vec4 projectedPosition = projectionMatrix * viewPosition;
@@ -106,5 +105,4 @@ void main() {
   gl_Position = projectedPosition;
 
   vUv = uv;
-  vElevation = elevation;
 }

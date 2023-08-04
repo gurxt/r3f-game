@@ -1,15 +1,26 @@
 import { Canvas } from '@react-three/fiber'
 import Scene from './components/Scene'
 import { Bloom, EffectComposer, Noise, Vignette } from '@react-three/postprocessing'
+import { KeyboardControls } from '@react-three/drei'
 
 const App = () => {
   return (
-    <Canvas shadows={false}>
-      <EffectComposer>
-        <Vignette />
-      </EffectComposer>
-      <Scene />
-    </Canvas>
+    <KeyboardControls
+      map={[
+        { name: 'forward', keys: ['ArrowUp', 'KeyW'] },
+        { name: 'backward', keys: ['ArrowDown', 'KeyS'] },
+        { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
+        { name: 'right', keys: ['ArrowRight', 'KeyD'] },
+        { name: 'jump', keys: ['Space'] },
+      ]}
+    >
+      <Canvas shadows>
+        <EffectComposer>
+          <Vignette />
+        </EffectComposer>
+        <Scene />
+      </Canvas>
+    </KeyboardControls>
   )
 }
 

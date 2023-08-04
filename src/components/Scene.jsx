@@ -1,10 +1,11 @@
-import { Html, OrbitControls, Sky, Stage } from "@react-three/drei"
+import { OrbitControls, Sky } from "@react-three/drei"
 import { Perf } from "r3f-perf"
-import { Model } from "./models/Town"
-import Ground from "./models/Ground"
 import ThirdPersonControls from "./util/ThirdPersonControls"
-import { useMemo, useRef, useState } from "react"
+import { useMemo, useState } from "react"
 import { CharacterContext } from "./hooks/useContext"
+import { Physics, RigidBody } from "@react-three/rapier"
+import Terrain from "./models/Terrain"
+import Battri from "./models/BigBattri"
 
 export default function Scene() {
   const [animation, setAnimation] = useState("Idle");
@@ -15,12 +16,43 @@ export default function Scene() {
     <>
     <Perf position="bottom-left" />
     <Sky />
-    <Ground position={[0, 0, 0]} />
-    <Model />
-    <CharacterContext.Provider value={contextValue}>
-      <ThirdPersonControls />
-    </CharacterContext.Provider>
-    <directionalLight />
+    <Physics gravity={[0, -9.8, 0]} debug>
+      <Terrain />
+      {/* <CharacterContext.Provider value={contextValue}>
+        <ThirdPersonControls />
+      </CharacterContext.Provider> */}
+      <Battri />
+
+      <RigidBody>
+        <mesh castShadow receiveShadow position={[-1, 2, -5]}>
+          <boxGeometry args={[1, 1]} />
+        </mesh>
+      </RigidBody>
+
+      {/* <RigidBody position={[1.5, 2, 0]}>
+        <mesh castShadow>
+          <boxGeometry />
+          <meshStandardMaterial color="mediumpurple" />
+        </mesh> 
+      </RigidBody> */}
+
+    </Physics>
+    <directionalLight
+      position={[2, 10, 3]}
+      intensity={1}
+      castShadow={true}
+      shadow-mapSize-width={1024}
+      shadow-mapSize-height={1024}
+      shadow-camera-far={50}
+      shadow-camera-left={-10}
+      shadow-camera-right={10}
+      shadow-camera-top={10}
+      shadow-camera-bottom={-10}
+    />
+
+    <OrbitControls />
+    {/* <OrbitControls /> */}
+    <ambientLight intensity={0.25}/>
     </>
   )
 }
