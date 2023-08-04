@@ -11,6 +11,7 @@ export default function ThirdPersonController(props) {
   const body = useRef()
   const yaw = useRef(0)
   const pitch = useRef(0)
+  const zoom = useRef(2); // initial zoom level
   const ctrls = useRef({
     sprint: false,
     crouch: false,
@@ -26,7 +27,7 @@ export default function ThirdPersonController(props) {
   const [targetCameraPosition, setTargetCameraPosition] = useState(new Vector3())
   const [targetCameraUp, setTargetCameraUp] = useState(new Vector3(0, 1, 0))
    // Interpolation speed factor
-   const lerpFactor = 0.15
+   const lerpFactor = 0.1
    // Range to clamp pitch to
    const pitchRange = [ -Math.PI, Math.PI ]
 
@@ -41,14 +42,30 @@ export default function ThirdPersonController(props) {
   
     const handleMouseMove = (event) => {
       yaw.current -= event.movementX * 0.0005
-      pitch.current = Math.max(pitchRange[0], Math.min(pitchRange[1], pitch.current + event.movementY * 0.0005))
+  
+      // Define the clamp values for pitch, which depend on the zoom level
+      let minPitchValue = -0.2 * zoom.current
+      let maxPitchValue = 0.2 * zoom.current
+  
+      // Adjust the pitch and clamp it
+      let newPitch = pitch.current + event.movementY * 0.0005
+      pitch.current = Math.max(minPitchValue, Math.min(maxPitchValue, newPitch))
+    }
+  
+    const handleWheel = (event) => {
+      // adjust zoom factor based on wheel delta
+      zoom.current += event.deltaY * 0.001;
+      // clamp zoom level between a min and max value
+      zoom.current = Math.max(1, Math.min(5, zoom.current));
     }
   
     const onPointerLockChange = () => {
       if (document.pointerLockElement === canvas) {
+        document.addEventListener('wheel', handleWheel);
         document.addEventListener("mousemove", handleMouseMove, false)
       } else {
         document.removeEventListener("mousemove", handleMouseMove, false)
+        document.removeEventListener('wheel', handleWheel);
       }
     }
   
@@ -102,23 +119,24 @@ export default function ThirdPersonController(props) {
     body.current.setNextKinematicRotation(bodyRotation)
 
      /* Camera */
-     const cameraOffset = new Vector3(0, 2 + Math.sin(pitch.current), 2)
+    const heightOffset = (zoom.current - 1) / 2; 
+    const cameraOffset = new Vector3(0, 2 + Math.sin(pitch.current) + heightOffset, zoom.current)
 
-     // Apply the body's rotation to the offset
-     cameraOffset.applyQuaternion(bodyRotation)
- 
-     // Add the offset to the body position
-     const newCameraPosition = new Vector3().addVectors(bodyPosition, cameraOffset)
-     
-     // Set the target camera position
-     setTargetCameraPosition(newCameraPosition)
- 
-     // Interpolate the camera position towards the target position
-     camera.position.lerp(targetCameraPosition, lerpFactor)
- 
-     // Adjust the lookAt position to look down on the body
-     const lookAtPosition = new Vector3(bodyPosition.x, bodyPosition.y + 1.5 - Math.sin(pitch.current), bodyPosition.z)
-     camera.lookAt(lookAtPosition)
+    // Apply the body's rotation to the offset
+    cameraOffset.applyQuaternion(bodyRotation)
+
+    // Add the offset to the body position
+    const newCameraPosition = new Vector3().addVectors(bodyPosition, cameraOffset)
+    
+    // Set the target camera position
+    setTargetCameraPosition(newCameraPosition)
+
+    // Interpolate the camera position towards the target position
+    camera.position.lerp(targetCameraPosition, lerpFactor)
+
+    // Adjust the lookAt position to look down on the body
+    const lookAtPosition = new Vector3(bodyPosition.x, bodyPosition.y + 2 - Math.sin(pitch.current), bodyPosition.z)
+    camera.lookAt(lookAtPosition)
  })
 
   return (
