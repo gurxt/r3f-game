@@ -16,7 +16,7 @@ export default function Scene() {
     <>
     <Perf position="bottom-left" />
     <Sky />
-    <Physics gravity={[0, -9.8, 0]} debug>
+    <Physics gravity={[0, -9.8, 0]}>
       <Terrain />
       {/* <CharacterContext.Provider value={contextValue}>
         <ThirdPersonControls />

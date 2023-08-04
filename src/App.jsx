@@ -2,6 +2,7 @@ import { Canvas } from '@react-three/fiber'
 import Scene from './components/Scene'
 import { Bloom, EffectComposer, Noise, Vignette } from '@react-three/postprocessing'
 import { KeyboardControls } from '@react-three/drei'
+import { useEffect } from 'react'
 
 const App = () => {
   return (
