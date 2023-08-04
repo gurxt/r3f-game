@@ -6,18 +6,16 @@ Files: .\public\Town.glb [31.3MB] > Town-transformed.glb [4.95MB] (84%)
 
 import React, { useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
+import { RigidBody } from '@react-three/rapier'
 
-export function Model(props) {
+export function Town(props) {
   const { nodes, materials } = useGLTF('/Town-transformed.glb')
   return (
-    <group {...props} dispose={null}>
-      <mesh geometry={nodes.Wall009.geometry} material={materials['Stone Wall Flag Floor']} />
-      <mesh geometry={nodes.Door_Frame.geometry} material={materials['Wooden surface scan']} position={[-66.905, 1.522, 73.11]} rotation={[0, 1.301, 0]} />
-      <mesh geometry={nodes.Door.geometry} material={materials['Medieval Door Reinforcement']} position={[-66.598, 0.492, 71.632]} rotation={[0, 1.301, 0]} scale={[1.011, 1.002, 1.011]} />
-      <mesh geometry={nodes.Tower003.geometry} material={materials['Stone Floor 05 Material']} position={[-68.468, 5.266, -74.1]} rotation={[0, -1.301, -Math.PI]} scale={[-1.009, -1.338, -1.009]} />
-      <instancedMesh args={[nodes.Cube046.geometry, materials['Wooden surface scan'], 6]} instanceMatrix={nodes.Cube046.instanceMatrix} />
-      <instancedMesh args={[nodes.Cube047.geometry, materials['Medieval Door Reinforcement'], 5]} instanceMatrix={nodes.Cube047.instanceMatrix} />
-    </group>
+    <RigidBody mass={1000} type="static">
+      <group {...props} dispose={null}>
+        <mesh geometry={nodes.Tower009.geometry} material={materials['Stone Wall Flag Floor']} position={[16.742, -0.051, 1.414]} rotation={[-Math.PI, 1.531, -Math.PI]} />
+      </group>
+    </RigidBody>
   )
 }
 

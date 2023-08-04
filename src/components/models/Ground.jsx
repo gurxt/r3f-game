@@ -35,7 +35,7 @@ export default function Ground({ position }) {
   })
 
   return (
-    <RigidBody type="Heightfield">
+    <RigidBody friction={1} type="Heightfield">
       <mesh receiveShadow castShadow position={position} ref={ref} material={material} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[250, 250, 256, 256]} />
       </mesh>

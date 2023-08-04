@@ -45,7 +45,7 @@ export default function Ground({ position }) {
   })
 
   return (
-    <RigidBody type="fixed">
+    <RigidBody type="heightfield">
         <mesh receiveShadow castShadow position={position} rotation={[-Math.PI / 2, 0, 0]} ref={ref}>
           <planeGeometry receiveShadow castShadow args={[250, 250, 256, 256]} />
           <customShaderMaterial castShadow receiveShadow attach="material" uniforms-uTextureCobblestone-value={textureCobblestone} uniforms-uTextureGrass-value={textureGrass} />
