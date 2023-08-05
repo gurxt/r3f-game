@@ -13,7 +13,8 @@ const App = () => {
         { name: 'left', keys: ['ArrowLeft', 'KeyA'] },
         { name: 'right', keys: ['ArrowRight', 'KeyD'] },
         { name: 'jump', keys: ['Space'] },
-        { name: 'sprint', keys: ['CapsLock']}
+        { name: 'sprint', keys: ['CapsLock']},
+        { name: 'crouch', keys: ['KeyC']}
       ]}
     >
       <Canvas shadows>

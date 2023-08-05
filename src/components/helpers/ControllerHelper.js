@@ -1,8 +1,8 @@
-export function setSpeed(x, z) {
-  if (z > 0   && x === 0) return 2.25
-  if (z < 0   && x === 0) return 2.5
-  if (z === 0 && x !== 0) return 2
-  if (z !== 0 && x !== 0) return 2.25
+export function setSpeed(x, z, base) {
+  if (z > 0   && x === 0) return base + base * 0.1
+  if (z < 0   && x === 0) return base + base * 0.1
+  if (z !== 0 && x !== 0) return base + base * 0.1
+  if (z === 0 && x !== 0) return base
   return 0
 }
 

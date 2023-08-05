@@ -12,11 +12,6 @@ export default function ThirdPersonController(props) {
   const yaw = useRef(0)
   const pitch = useRef(0)
   const zoom = useRef(2); // initial zoom level
-  const ctrls = useRef({
-    sprint: false,
-    crouch: false,
-    jump: false
-  })
   // keyboard controls
   const [ subscribeKeys, getKeys ] = useKeyboardControls()
   // control the animations
@@ -44,8 +39,8 @@ export default function ThirdPersonController(props) {
       yaw.current -= event.movementX * 0.0005
   
       // Define the clamp values for pitch, which depend on the zoom level
-      let minPitchValue = -0.2 * zoom.current
-      let maxPitchValue = 0.2 * zoom.current
+      let minPitchValue = -1
+      let maxPitchValue = 1
   
       // Adjust the pitch and clamp it
       let newPitch = pitch.current + event.movementY * 0.0005
@@ -81,7 +76,7 @@ export default function ThirdPersonController(props) {
   useFrame(({ camera }, delta) => {
     if (!body.current) return null
 
-    const { forward, backward, left, right, sprint } = getKeys()
+    const { forward, backward, left, right, sprint, crouch } = getKeys()
 
     const bodyPosition = body.current.nextTranslation()
 
@@ -106,8 +101,11 @@ export default function ThirdPersonController(props) {
     // Rotate the direction vector according to body's rotation
     direction.applyQuaternion(bodyRotation)
 
-    // modify the speed
-    let speed = setSpeed(direction.x, direction.z) * delta
+    let speed
+    if      (crouch) speed = setSpeed(direction.x, direction.z, 2)
+    else if (sprint) speed = setSpeed(direction.x, direction.z, 6) 
+    else                           speed = setSpeed(direction.x, direction.z, 3)
+    speed = speed * delta
 
     // Update the position with the direction and speed
     bodyPosition.x += direction.x * speed
@@ -120,7 +118,7 @@ export default function ThirdPersonController(props) {
 
      /* Camera */
     const heightOffset = (zoom.current - 1) / 2; 
-    const cameraOffset = new Vector3(0, 2 + Math.sin(pitch.current) + heightOffset, zoom.current)
+    const cameraOffset = new Vector3(0, 1 + Math.sin(pitch.current) + heightOffset, zoom.current)
 
     // Apply the body's rotation to the offset
     cameraOffset.applyQuaternion(bodyRotation)
